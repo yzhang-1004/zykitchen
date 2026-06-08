@@ -25,7 +25,7 @@ Page({
     _syncing: false,
     
     // 版本号
-    version: '1.5.2'
+    version: '1.5.3'
   },
 
   onShow() {

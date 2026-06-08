@@ -6,23 +6,45 @@
  */
 function compressImageToBase64(filePath, quality = 60) {
   return new Promise((resolve, reject) => {
-    wx.compressImage({
+    // 先获取图片信息，判断是否需要缩小
+    wx.getImageInfo({
       src: filePath,
-      quality: quality,
-      success: (res) => {
-        const fs = wx.getFileSystemManager();
-        try {
-          const base64 = fs.readFileSync(res.tempFilePath, 'base64');
-          const dataURI = `data:image/jpeg;base64,${base64}`;
-          console.log('图片压缩完成，大小约:', Math.round(base64.length * 0.75 / 1024), 'KB');
-          resolve(dataURI);
-        } catch (err) {
-          console.error('读取base64失败:', err);
-          reject(err);
+      success: (info) => {
+        const maxWidth = 800;
+        let compressedWidth = info.width;
+        let compressedHeight = info.height;
+        
+        // 如果宽度超过800px，按比例缩小
+        if (info.width > maxWidth) {
+          compressedWidth = maxWidth;
+          compressedHeight = Math.round(info.height * maxWidth / info.width);
         }
+        
+        wx.compressImage({
+          src: filePath,
+          quality: quality,
+          compressedWidth: compressedWidth,
+          compressHeight: compressedHeight,
+          success: (res) => {
+            const fs = wx.getFileSystemManager();
+            try {
+              const base64 = fs.readFileSync(res.tempFilePath, 'base64');
+              const dataURI = `data:image/jpeg;base64,${base64}`;
+              console.log('图片压缩完成，大小约:', Math.round(base64.length * 0.75 / 1024), 'KB');
+              resolve(dataURI);
+            } catch (err) {
+              console.error('读取base64失败:', err);
+              reject(err);
+            }
+          },
+          fail: (err) => {
+            console.error('压缩图片失败:', err);
+            reject(err);
+          }
+        });
       },
       fail: (err) => {
-        console.error('压缩图片失败:', err);
+        console.error('获取图片信息失败:', err);
         reject(err);
       }
     });

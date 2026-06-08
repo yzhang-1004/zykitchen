@@ -174,13 +174,12 @@
         <!-- 菜品描述 -->
         <view class="form-item">
           <text class="form-label">菜品描述</text>
-          <textarea 
+          <textarea
             class="form-textarea"
             placeholder="请输入菜品描述..."
             value="{{formData.description}}"
             bindinput="onDescInput"
             maxlength="200"
-            auto-height
           />
         </view>
 
@@ -208,13 +207,12 @@
         <!-- 菜谱文本 -->
         <view class="form-item">
           <text class="form-label">菜谱做法</text>
-          <textarea 
+          <textarea
             class="form-textarea"
             placeholder="请输入做法步骤..."
             value="{{formData.recipe}}"
             bindinput="onRecipeInput"
             maxlength="1000"
-            auto-height
           />
         </view>
 

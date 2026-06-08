@@ -314,6 +314,9 @@ Page({
         this.setData({
           'formData.images': images
         });
+      },
+      fail: (err) => {
+        console.error('选择图片失败:', err);
       }
     });
   },
@@ -341,6 +344,9 @@ Page({
         this.setData({
           'formData.recipeImages': images
         });
+      },
+      fail: (err) => {
+        console.error('选择菜谱图片失败:', err);
       }
     });
   },

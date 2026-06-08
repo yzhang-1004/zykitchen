@@ -1,5 +1,4 @@
 {
-  "cloudfunctionRoot": "cloudfunctions/",
   "description": "萌系Kawaii风格奶茶店小程序",
   "packOptions": {
     "ignore": [],
