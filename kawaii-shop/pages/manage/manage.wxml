@@ -122,7 +122,7 @@
           <view class="action-btn edit-btn" bindtap="openEditDish" data-dish="{{item}}" hover-class="btn-hover">
             <text class="btn-icon">✏️</text>
           </view>
-          <view class="action-btn delete-btn" bindtap="deleteDish" data-id="{{item.id}}" hover-class="btn-hover">
+          <view class="action-btn delete-btn" bindtap="deleteDish" data-dish="{{item}}" hover-class="btn-hover">
             <text class="btn-icon">🗑️</text>
           </view>
         </view>
