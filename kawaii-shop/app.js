@@ -1,16 +1,31 @@
 App({
-  onLaunch() {
+  async onLaunch() {
     console.log('ZY厨房小程序启动啦~ 🎉');
     console.log('当前环境:', __wxConfig.envVersion);
     console.log('基础库版本:', wx.version);
     
+    // 初始化云开发环境
+    if (!wx.cloud) {
+      console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+    } else {
+      wx.cloud.init({
+        env: 'kawaii-shop-xxxxx',  // TODO: 请替换为您的云环境ID
+        traceUser: true
+      });
+      console.log('云开发初始化成功');
+      
+      // 从云数据库加载数据
+      await this.loadUserData();
+    }
+    
     // 开发版强制清除缓存
     if (__wxConfig.envVersion === 'develop') {
       try {
-        wx.clearStorageSync();
-        console.log('开发版已清除本地存储');
+        // 注意：不清除云数据库数据，只清除本地缓存
+        // wx.clearStorageSync(); 
+        console.log('开发版已启动');
       } catch (e) {
-        console.error('清除存储失败:', e);
+        console.error('错误:', e);
       }
     }
     
@@ -33,7 +48,7 @@ App({
       });
     }
     
-    // 初始化全局数据（菜品和待做初始为空，用户自行添加）
+    // 初始化全局数据（如果从云端加载失败，使用空数组）
     if (!this.globalData.dishes) {
       this.globalData.dishes = [];
     }
@@ -48,6 +63,57 @@ App({
     }
     if (!this.globalData.cookHistory) {
       this.globalData.cookHistory = [];
+    }
+  },
+  
+  /**
+   * 从云数据库加载用户数据
+   */
+  async loadUserData() {
+    const db = require('./utils/db');
+    
+    wx.showLoading({ title: '加载数据中...', icon: 'none' });
+    
+    try {
+      // 并行加载所有数据
+      const [dishesRes, cartRes, todoRes, statsRes] = await Promise.all([
+        db.get('dishes'),
+        db.get('cart_items'),
+        db.get('todo_orders', { status: 'pending' }),
+        db.get('user_stats')
+      ]);
+      
+      // 更新全局数据
+      if (dishesRes.success) {
+        this.globalData.dishes = dishesRes.data;
+        console.log('加载菜品:', dishesRes.data.length);
+      }
+      
+      if (cartRes.success && cartRes.data.length > 0) {
+        this.globalData.cartItems = cartRes.data[0].items || [];
+        console.log('加载购物车:', this.globalData.cartItems.length);
+      }
+      
+      if (todoRes.success) {
+        this.globalData.todoOrders = todoRes.data;
+        console.log('加载待做订单:', todoRes.data.length);
+      }
+      
+      if (statsRes.success && statsRes.data.length > 0) {
+        this.globalData.starCount = statsRes.data[0].starCount || 0;
+        this.globalData.cookHistory = statsRes.data[0].cookHistory || [];
+        console.log('加载统计数据: 星星', this.globalData.starCount);
+      }
+      
+      console.log('数据加载完成 ✅');
+    } catch (err) {
+      console.error('加载数据失败:', err);
+      wx.showToast({
+        title: '数据加载失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
     }
   },
   globalData: {

@@ -1,4 +1,5 @@
 const app = getApp();
+const db = require('../../utils/db');
 
 Page({
   data: {
@@ -18,7 +19,10 @@ Page({
     // 点菜篮
     showCartModal: false,
     cartCount: 0,
-    recipeExpandIndex: -1  // 当前展开菜谱的索引，-1表示无展开
+    recipeExpandIndex: -1,  // 当前展开菜谱的索引，-1表示无展开
+    
+    // 节流标志
+    _syncing: false
   },
 
   onShow() {
@@ -71,6 +75,43 @@ Page({
       icon: 'none',
       duration: 1000
     });
+    
+    // 节流同步到云端（500ms）
+    this._syncCartToCloud();
+  },
+
+  // 节流同步购物车到云端
+  _syncCartToCloud() {
+    if (this.data._syncing) return;
+    
+    this.setData({ _syncing: true });
+    
+    setTimeout(async () => {
+      try {
+        const cartItems = app.globalData.cartItems || [];
+        
+        // 查询是否已存在购物车文档
+        const existing = await db.get('cart_items');
+        
+        if (existing.success && existing.data.length > 0) {
+          // 更新现有购物车
+          await db.update('cart_items', existing.data[0]._id, {
+            items: cartItems
+          });
+        } else {
+          // 创建新购物车
+          await db.add('cart_items', {
+            items: cartItems
+          });
+        }
+        
+        console.log('购物车已同步到云端 ✅');
+      } catch (err) {
+        console.error('同步购物车失败:', err);
+      } finally {
+        this.setData({ _syncing: false });
+      }
+    }, 500);
   },
 
   // 更新购物车数量
@@ -126,6 +167,9 @@ Page({
     const processed = this._processCartItems(cartItems);
     this.setData({ cartItems: processed });
     this.updateCartCount();
+    
+    // 同步到云端
+    this._syncCartToCloud();
   },
 
   // 减少数量
@@ -144,10 +188,13 @@ Page({
       this.setData({ cartItems: this._processCartItems(cartItems) });
       this.updateCartCount();
     }
+    
+    // 同步到云端
+    this._syncCartToCloud();
   },
 
   // 确认下单
-  confirmOrder() {
+  async confirmOrder() {
     const cartItems = app.globalData.cartItems || [];
     if (cartItems.length === 0) {
       wx.showToast({
@@ -157,42 +204,77 @@ Page({
       return;
     }
 
-    // 将已点菜品写入待做列表
-    const todoOrders = app.globalData.todoOrders || [];
-    const now = new Date();
-    const timeStr = now.toLocaleString('zh-CN');
-    cartItems.forEach(item => {
-      const recipe = item.dish.recipe || '';
-      todoOrders.push({
-        id: Date.now() + Math.random(),
-        dishName: item.dish.name,
-        dish: item.dish,
-        quantity: item.quantity,
-        time: timeStr,
-        recipeSteps: recipe ? recipe.split('\n').filter(s => s.trim()) : []
+    wx.showLoading({ title: '下单中...', icon: 'none' });
+
+    try {
+      // 将已点菜品写入待做列表
+      const todoOrders = app.globalData.todoOrders || [];
+      const now = new Date();
+      const timeStr = now.toLocaleString('zh-CN');
+      
+      // 准备要添加到云端的订单
+      const ordersToAdd = [];
+      
+      cartItems.forEach(item => {
+        const recipe = item.dish.recipe || '';
+        const order = {
+          id: Date.now() + Math.random(),
+          dishName: item.dish.name,
+          dish: item.dish,
+          quantity: item.quantity,
+          time: timeStr,
+          status: 'pending',
+          recipeSteps: recipe ? recipe.split('\n').filter(s => s.trim()) : []
+        };
+        todoOrders.push(order);
+        ordersToAdd.push(order);
       });
-    });
-    app.globalData.todoOrders = todoOrders;
-
-    // 清空点菜篮
-    app.globalData.cartItems = [];
-    this.updateCartCount();
-    this.setData({ showCartModal: false, recipeExpandIndex: -1 });
-
-    const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    wx.showModal({
-      title: '下单成功 🎉',
-      content: `共点了 ${totalQty} 道菜，已加入待做清单！`,
-      showCancel: false,
-      confirmText: '好的',
-      confirmColor: '#FF9AAF',
-      success: () => {
-        wx.showToast({
-          title: '去管理页查看待做吧 😋',
-          icon: 'none',
-          duration: 2000
+      
+      app.globalData.todoOrders = todoOrders;
+      
+      // 添加到云数据库
+      for (const order of ordersToAdd) {
+        await db.add('todo_orders', order);
+      }
+      
+      // 清空点菜篮
+      app.globalData.cartItems = [];
+      
+      // 清空云端购物车
+      const existing = await db.get('cart_items');
+      if (existing.success && existing.data.length > 0) {
+        await db.update('cart_items', existing.data[0]._id, {
+          items: []
         });
       }
-    });
+      
+      this.updateCartCount();
+      this.setData({ showCartModal: false, recipeExpandIndex: -1 });
+      
+      wx.hideLoading();
+
+      const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+      wx.showModal({
+        title: '下单成功 🎉',
+        content: `共点了 ${totalQty} 道菜，已加入待做清单！`,
+        showCancel: false,
+        confirmText: '好的',
+        confirmColor: '#FF9AAF',
+        success: () => {
+          wx.showToast({
+            title: '去管理页查看待做吧 😋',
+            icon: 'none',
+            duration: 2000
+          });
+        }
+      });
+    } catch (err) {
+      wx.hideLoading();
+      console.error('下单失败:', err);
+      wx.showToast({
+        title: '下单失败，请重试',
+        icon: 'none'
+      });
+    }
   }
 });
