@@ -1,0 +1,87 @@
+<view class="profile-page">
+  <!-- 顶部Header -->
+  <view class="header">
+    <view class="page-title">我的厨房 ⭐</view>
+  </view>
+
+  <!-- 星星罐子 -->
+  <view class="star-jar-container">
+    <view class="star-jar">
+      <view class="jar-icon">🏺</view>
+      <view class="star-count {{starCount > 0 ? 'animate' : ''}}">
+        <text class="star-number">{{starCount}}</text>
+        <text class="star-label">颗星星</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 成就头衔 -->
+  <view class="title-card">
+    <view class="title-icon">{{titleIcon}}</view>
+    <view class="title-info">
+      <text class="title-name">{{title}}</text>
+      <text class="title-desc">继续做菜解锁更多头衔吧~</text>
+    </view>
+  </view>
+
+  <!-- 成就进度 -->
+  <view class="achievement-progress">
+    <view class="progress-title">成就进度</view>
+    <view class="progress-list">
+      <view class="progress-item {{starCount >= 6 ? 'completed' : ''}}">
+        <view class="progress-icon">🐣</view>
+        <view class="progress-info">
+          <text class="progress-name">厨房小当家</text>
+          <text class="progress-desc">0-5 颗星星</text>
+        </view>
+        <view class="progress-check">{{starCount >= 0 ? '✓' : ''}}</view>
+      </view>
+      <view class="progress-item {{starCount >= 6 ? 'completed' : ''}}">
+        <view class="progress-icon">🪄</view>
+        <view class="progress-info">
+          <text class="progress-name">美味魔法师</text>
+          <text class="progress-desc">6-15 颗星星</text>
+        </view>
+        <view class="progress-check">{{starCount >= 6 ? '✓' : ''}}</view>
+      </view>
+      <view class="progress-item {{starCount >= 16 ? 'completed' : ''}}">
+        <view class="progress-icon">👨‍🍳</view>
+        <view class="progress-info">
+          <text class="progress-name">米其林大厨</text>
+          <text class="progress-desc">16-30 颗星星</text>
+        </view>
+        <view class="progress-check">{{starCount >= 16 ? '✓' : ''}}</view>
+      </view>
+      <view class="progress-item {{starCount >= 30 ? 'completed' : ''}}">
+        <view class="progress-icon">👑</view>
+        <view class="progress-info">
+          <text class="progress-name">传奇食神</text>
+          <text class="progress-desc">30+ 颗星星</text>
+        </view>
+        <view class="progress-check">{{starCount >= 30 ? '✓' : ''}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 烹饪记录 -->
+  <view class="cook-history">
+    <view class="history-title">烹饪记录</view>
+    
+    <view class="history-list" wx:if="{{cookHistory.length > 0}}">
+      <view class="history-item" wx:for="{{cookHistory}}" wx:key="index">
+        <view class="history-icon">⭐</view>
+        <view class="history-info">
+          <text class="history-dish">{{item.dishName}}</text>
+          <text class="history-time">{{item.time}}</text>
+        </view>
+        <view class="history-stars">+{{item.stars}}⭐</view>
+      </view>
+    </view>
+
+    <view class="empty-history" wx:else>
+      <view class="empty-icon">🍳</view>
+      <text class="empty-text">今天还没做菜哦~</text>
+      <text class="empty-hint">快去展示你的厨艺吧！</text>
+    </view>
+  </view>
+</view>

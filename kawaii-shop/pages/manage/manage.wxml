@@ -1,0 +1,254 @@
+<view class="manage-page">
+  <!-- 顶部Header -->
+  <view class="header">
+    <view class="header-content">
+      <view class="page-title">菜品管理 🍳</view>
+      <view class="page-subtitle">管理你的美味佳肴</view>
+    </view>
+    <view class="mascot">👨‍🍳</view>
+  </view>
+
+  <!-- 待做菜品待办区 -->
+  <view class="todo-section" wx:if="{{todoOrders.length > 0}}">
+    <view class="todo-section-header">
+      <view class="todo-title-row">
+        <text class="todo-section-icon">📝</text>
+        <text class="todo-section-title">待做菜品</text>
+        <view class="todo-badge">{{todoOrders.length}}</view>
+      </view>
+      <text class="todo-subtitle">点菜后这里会显示待做清单哦~</text>
+    </view>
+
+    <scroll-view class="todo-list" scroll-y enhanced="{{true}}">
+      <view class="todo-card" wx:for="{{todoOrders}}" wx:key="id">
+        <!-- 菜品主行：点击展开/折叠菜谱 -->
+        <view class="todo-row" bindtap="toggleTodoRecipe" data-index="{{index}}" hover-class="btn-hover">
+          <view class="todo-info">
+            <text class="todo-dish-name">{{item.dishName}}</text>
+            <view class="todo-meta">
+              <text class="todo-qty">× {{item.quantity}}</text>
+              <text class="todo-category-tag" wx:if="{{item.dish.categoryName}}">{{item.dish.categoryName}}</text>
+            </view>
+            <text class="todo-time">{{item.time}}</text>
+          </view>
+          <text class="todo-expand-arrow {{todoExpandIndex === index ? 'todo-expand-arrow--up' : ''}}">▾</text>
+        </view>
+
+        <!-- 折叠菜谱面板 -->
+        <view class="todo-recipe-panel {{todoExpandIndex === index ? 'todo-recipe-panel--open' : ''}}">
+          <view class="todo-recipe-inner">
+            <view class="todo-recipe-title">📖 菜谱做法</view>
+            <view class="todo-recipe-steps" wx:if="{{item.recipeSteps.length > 0}}">
+              <view class="todo-step-item" wx:for="{{item.recipeSteps}}" wx:for-item="step" wx:key="*this">
+                <text class="todo-step-dot">●</text>
+                <text class="todo-step-text">{{step}}</text>
+              </view>
+            </view>
+            <view class="todo-recipe-empty" wx:else>
+              <text class="todo-recipe-empty-text">暂无菜谱，去编辑菜品添加吧~</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="todo-actions">
+          <view class="todo-action-btn todo-cook-btn" bindtap="completeTodo" data-id="{{item.id}}" hover-class="btn-hover">
+            <text>👨‍🍳 做完了</text>
+          </view>
+          <view class="todo-action-btn todo-remove-btn" bindtap="removeTodo" data-id="{{item.id}}" hover-class="btn-hover">
+            <text>🗑️ 取消</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 待做为空时的提示小条 -->
+  <view class="todo-empty-bar" wx:if="{{todoOrders.length === 0}}">
+    <text class="todo-empty-icon">📝</text>
+    <text class="todo-empty-text">暂无待做菜品，去点菜区下单后这里会显示待做清单~</text>
+  </view>
+
+  <!-- 新增按钮 -->
+  <view class="add-dish-btn" bindtap="openAddDish" hover-class="btn-hover">
+    <text class="add-icon">+</text>
+    <text class="add-text">新增菜品</text>
+  </view>
+
+  <!-- 分类Tab -->
+  <view class="tab-container">
+    <view 
+      class="tab-item {{activeTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      bindtap="switchTab"
+      data-index="{{index}}">
+      <text class="tab-icon">{{item.icon}}</text>
+      <text class="tab-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 菜品列表 -->
+  <scroll-view class="dish-list" scroll-y enhanced="{{true}}">
+    <view class="dish-card" wx:for="{{currentDishes}}" wx:key="id">
+      <view class="dish-image-wrapper">
+        <image 
+          class="dish-image" 
+          src="{{item.images[0] || ''}}" 
+          mode="aspectFill"
+          wx:if="{{item.images && item.images.length > 0}}"
+        />
+        <view class="dish-image-placeholder" wx:else>
+          <text class="placeholder-icon">🍽️</text>
+        </view>
+        <view class="image-count" wx:if="{{item.images && item.images.length > 1}}">
+          <text>+{{item.images.length - 1}}</text>
+        </view>
+      </view>
+      <view class="dish-info">
+        <view class="dish-header">
+          <text class="dish-name">{{item.name}}</text>
+          <view class="dish-category-tag">{{item.categoryName}}</view>
+        </view>
+        <text class="dish-desc">{{item.description}}</text>
+        <view class="dish-stats">
+          <text class="cook-count">已做 {{item.cookCount || 0}} 次</text>
+        </view>
+        <view class="dish-actions">
+          <view class="action-btn cook-btn" bindtap="cookDish" data-dish="{{item}}" hover-class="btn-hover">
+            <text class="btn-icon">👨‍🍳</text>
+            <text class="btn-text">做这道菜</text>
+          </view>
+          <view class="action-btn edit-btn" bindtap="openEditDish" data-dish="{{item}}" hover-class="btn-hover">
+            <text class="btn-icon">✏️</text>
+          </view>
+          <view class="action-btn delete-btn" bindtap="deleteDish" data-id="{{item.id}}" hover-class="btn-hover">
+            <text class="btn-icon">🗑️</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{currentDishes.length === 0}}">
+      <view class="empty-icon">🍽️</view>
+      <text class="empty-text">还没有菜品哦~</text>
+      <text class="empty-hint">点击上方"新增菜品"添加吧 🐾</text>
+    </view>
+  </scroll-view>
+
+  <!-- 新增/编辑弹窗 -->
+  <view class="modal-mask" wx:if="{{showModal}}" bindtap="closeModal" catchtouchmove="preventMove">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{isEditMode ? '编辑菜品' : '新增菜品'}}</text>
+        <view class="close-btn" bindtap="closeModal">
+          <text class="close-icon">×</text>
+        </view>
+      </view>
+
+      <scroll-view class="modal-body" scroll-y enhanced="{{true}}">
+        <!-- 菜品名称 -->
+        <view class="form-item">
+          <text class="form-label">菜品名称</text>
+          <input 
+            class="form-input" 
+            placeholder="请输入菜品名称"
+            value="{{formData.name}}"
+            bindinput="onNameInput"
+            maxlength="20"
+          />
+        </view>
+
+        <!-- 菜品分类 -->
+        <view class="form-item">
+          <text class="form-label">菜品分类</text>
+          <view class="category-picker" bindtap="showCategoryPicker">
+            <text class="picker-text {{formData.category ? '' : 'placeholder'}}">
+              {{formData.categoryName || '请选择分类'}}
+            </text>
+            <text class="picker-arrow">▼</text>
+          </view>
+        </view>
+
+        <!-- 菜品描述 -->
+        <view class="form-item">
+          <text class="form-label">菜品描述</text>
+          <textarea 
+            class="form-textarea"
+            placeholder="请输入菜品描述..."
+            value="{{formData.description}}"
+            bindinput="onDescInput"
+            maxlength="200"
+            auto-height
+          />
+        </view>
+
+        <!-- 菜品图片 -->
+        <view class="form-item">
+          <text class="form-label">菜品图片（最多3张）</text>
+          <view class="image-upload-area">
+            <view class="image-preview" wx:for="{{formData.images}}" wx:key="index">
+              <image class="preview-img" src="{{item}}" mode="aspectFill" />
+              <view class="delete-img-btn" bindtap="deleteImage" data-index="{{index}}" hover-class="btn-hover">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+            <view 
+              class="upload-btn" 
+              wx:if="{{formData.images.length < 3}}"
+              bindtap="chooseImage"
+              hover-class="btn-hover">
+              <text class="upload-icon">+</text>
+              <text class="upload-text">上传</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 菜谱文本 -->
+        <view class="form-item">
+          <text class="form-label">菜谱做法</text>
+          <textarea 
+            class="form-textarea"
+            placeholder="请输入做法步骤..."
+            value="{{formData.recipe}}"
+            bindinput="onRecipeInput"
+            maxlength="1000"
+            auto-height
+          />
+        </view>
+
+        <!-- 菜谱图片 -->
+        <view class="form-item">
+          <text class="form-label">菜谱图片（可选）</text>
+          <view class="image-upload-area">
+            <view class="image-preview" wx:for="{{formData.recipeImages}}" wx:key="index">
+              <image class="preview-img" src="{{item}}" mode="aspectFill" />
+              <view class="delete-img-btn" bindtap="deleteRecipeImage" data-index="{{index}}" hover-class="btn-hover">
+                <text class="delete-icon">×</text>
+              </view>
+            </view>
+            <view 
+              class="upload-btn" 
+              wx:if="{{formData.recipeImages.length < 3}}"
+              bindtap="chooseRecipeImage"
+              hover-class="btn-hover">
+              <text class="upload-icon">+</text>
+              <text class="upload-text">上传</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <!-- 底部按钮 -->
+      <view class="modal-footer">
+        <view class="modal-btn cancel-btn" bindtap="closeModal" hover-class="btn-hover">
+          <text>取消</text>
+        </view>
+        <view class="modal-btn submit-btn" bindtap="submitDish" hover-class="btn-hover">
+          <text>{{isEditMode ? '保存' : '添加'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

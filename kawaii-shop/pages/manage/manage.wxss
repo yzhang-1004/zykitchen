@@ -1,0 +1,721 @@
+/* 页面容器 */
+.manage-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+  padding-bottom: 100rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60rpx 40rpx 40rpx;
+  background: linear-gradient(135deg, var(--green) 0%, var(--blue) 100%);
+  border-radius: 0 0 50rpx 50rpx;
+  box-shadow: 0 8rpx 24rpx rgba(126, 212, 166, 0.3);
+}
+
+.page-title {
+  font-size: 52rpx;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 8rpx;
+}
+
+.page-subtitle {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.mascot {
+  font-size: 80rpx;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ========== 待做菜品待办区 ========== */
+.todo-section {
+  margin: 24rpx 30rpx 0;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 28rpx 24rpx 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 183, 122, 0.18);
+  border: 2rpx solid rgba(255, 183, 122, 0.2);
+}
+
+.todo-section-header {
+  margin-bottom: 20rpx;
+}
+
+.todo-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 8rpx;
+}
+
+.todo-section-icon {
+  font-size: 36rpx;
+}
+
+.todo-section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.todo-badge {
+  min-width: 40rpx;
+  height: 40rpx;
+  background: linear-gradient(135deg, var(--orange) 0%, #FFD4A8 100%);
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: bold;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
+}
+
+.todo-subtitle {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.todo-list {
+  max-height: 480rpx;
+}
+
+/* 待做卡片 */
+.todo-card {
+  background: #FFFAF3;
+  border-radius: 22rpx;
+  margin-bottom: 18rpx;
+  overflow: hidden;
+  border: 2rpx solid rgba(255, 183, 122, 0.15);
+}
+
+.todo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 22rpx 18rpx;
+}
+
+.todo-info {
+  flex: 1;
+}
+
+.todo-dish-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.todo-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 6rpx;
+}
+
+.todo-qty {
+  font-size: 24rpx;
+  color: var(--orange);
+  font-weight: bold;
+}
+
+.todo-category-tag {
+  padding: 2rpx 14rpx;
+  background: var(--green);
+  color: #fff;
+  font-size: 19rpx;
+  border-radius: 14rpx;
+}
+
+.todo-time {
+  font-size: 20rpx;
+  color: var(--text-secondary);
+}
+
+.todo-expand-arrow {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+.todo-expand-arrow--up {
+  transform: rotate(180deg);
+}
+
+/* 折叠菜谱面板 */
+.todo-recipe-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #FFF5E8;
+}
+.todo-recipe-panel--open {
+  max-height: 500rpx;
+}
+
+.todo-recipe-inner {
+  padding: 18rpx 22rpx 22rpx;
+  border-top: 2rpx dashed rgba(255, 183, 122, 0.35);
+}
+
+.todo-recipe-title {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: var(--orange);
+  margin-bottom: 12rpx;
+}
+
+.todo-recipe-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.todo-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 6rpx 0;
+}
+
+.todo-step-dot {
+  font-size: 14rpx;
+  color: var(--orange);
+  margin-top: 7rpx;
+  flex-shrink: 0;
+}
+
+.todo-step-text {
+  font-size: 24rpx;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.todo-recipe-empty {
+  padding: 12rpx 0;
+}
+.todo-recipe-empty-text {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* 待做操作按钮 */
+.todo-actions {
+  display: flex;
+  gap: 14rpx;
+  padding: 0 22rpx 18rpx;
+}
+
+.todo-action-btn {
+  flex: 1;
+  padding: 14rpx 0;
+  text-align: center;
+  border-radius: 18rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.todo-cook-btn {
+  background: linear-gradient(135deg, var(--orange) 0%, #FFD4A8 100%);
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(255, 183, 122, 0.35);
+}
+
+.todo-remove-btn {
+  background: #FFF0E8;
+  color: var(--text-secondary);
+  border: 2rpx solid rgba(255, 183, 122, 0.25);
+}
+
+/* 待做为空提示条 */
+.todo-empty-bar {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 24rpx 30rpx 0;
+  padding: 22rpx 28rpx;
+  background: #FFF8F0;
+  border-radius: 22rpx;
+  border: 2rpx dashed rgba(255, 183, 122, 0.35);
+}
+
+.todo-empty-icon {
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.todo-empty-text {
+  font-size: 23rpx;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* 新增按钮 */
+.add-dish-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30rpx 40rpx;
+  padding: 28rpx;
+  background: linear-gradient(135deg, var(--green) 0%, var(--blue) 100%);
+  border-radius: 30rpx;
+  box-shadow: 0 8rpx 20rpx rgba(126, 212, 166, 0.4);
+}
+
+.add-icon {
+  font-size: 40rpx;
+  color: white;
+  margin-right: 12rpx;
+  font-weight: bold;
+}
+
+.add-text {
+  font-size: 32rpx;
+  color: white;
+  font-weight: bold;
+}
+
+/* Tab容器 */
+.tab-container {
+  display: flex;
+  padding: 20rpx 40rpx;
+  background: white;
+  margin: 0 20rpx 20rpx;
+  border-radius: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  margin: 0 10rpx;
+  border-radius: 24rpx;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background: linear-gradient(135deg, var(--green) 0%, #A8E6CF 100%);
+  box-shadow: 0 6rpx 16rpx rgba(126, 212, 166, 0.3);
+}
+
+.tab-icon {
+  font-size: 44rpx;
+  margin-bottom: 8rpx;
+}
+
+.tab-name {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tab-item.active .tab-name {
+  color: white;
+  font-weight: bold;
+}
+
+/* 菜品列表 */
+.dish-list {
+  padding: 20rpx 40rpx;
+  flex: 1;
+  min-height: 300rpx;
+}
+
+/* 菜品卡片 */
+.dish-card {
+  display: flex;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  background: white;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(126, 212, 166, 0.15);
+  border: 2rpx solid rgba(126, 212, 166, 0.1);
+}
+
+.dish-image-wrapper {
+  position: relative;
+  margin-right: 24rpx;
+}
+
+.dish-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFF9F0 100%);
+}
+
+.dish-image-placeholder {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFF9F0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-icon {
+  font-size: 80rpx;
+  opacity: 0.5;
+}
+
+.image-count {
+  position: absolute;
+  bottom: -8rpx;
+  right: -8rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 20rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 16rpx;
+}
+
+.dish-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dish-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.dish-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.dish-category-tag {
+  padding: 6rpx 16rpx;
+  background: var(--green);
+  color: white;
+  font-size: 20rpx;
+  border-radius: 20rpx;
+  font-weight: bold;
+}
+
+.dish-desc {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+  line-height: 1.6;
+}
+
+.dish-stats {
+  margin-bottom: 12rpx;
+}
+
+.cook-count {
+  font-size: 22rpx;
+  color: var(--orange);
+  font-weight: bold;
+}
+
+.dish-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14rpx 20rpx;
+  border-radius: 20rpx;
+  transition: all 0.2s ease;
+}
+
+.btn-hover {
+  transform: scale(0.95);
+}
+
+.cook-btn {
+  flex: 2;
+  background: linear-gradient(135deg, var(--orange) 0%, #FFD4A8 100%);
+}
+
+.edit-btn, .delete-btn {
+  flex: 1;
+  background: var(--bg-color);
+}
+
+.btn-icon {
+  font-size: 28rpx;
+}
+
+.btn-text {
+  font-size: 24rpx;
+  color: white;
+  font-weight: bold;
+  margin-left: 6rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: var(--text-primary);
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 弹窗遮罩 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  width: 100%;
+  max-height: 85vh;
+  background: white;
+  border-radius: 40rpx 40rpx 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40rpx;
+  border-bottom: 2rpx solid rgba(126, 212, 166, 0.2);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.close-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  border-radius: 50%;
+}
+
+.close-icon {
+  font-size: 40rpx;
+  color: var(--text-secondary);
+}
+
+.modal-body {
+  flex: 1;
+  padding: 40rpx;
+  overflow-y: auto;
+}
+
+/* 表单样式 */
+.form-item {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: bold;
+  margin-bottom: 16rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 24rpx;
+  background: var(--bg-color);
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  border: 2rpx solid transparent;
+}
+
+.category-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: var(--bg-color);
+  border-radius: 20rpx;
+}
+
+.picker-text {
+  font-size: 28rpx;
+  color: var(--text-primary);
+}
+
+.picker-text.placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.picker-arrow {
+  font-size: 20rpx;
+  color: var(--text-secondary);
+}
+
+/* 图片上传区域 */
+.image-upload-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.image-preview {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+}
+
+.delete-img-btn {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon {
+  color: white;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.upload-btn {
+  width: 200rpx;
+  height: 200rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  border: 3rpx dashed var(--green);
+  border-radius: 20rpx;
+}
+
+.upload-icon {
+  font-size: 56rpx;
+  color: var(--green);
+  margin-bottom: 8rpx;
+}
+
+.upload-text {
+  font-size: 24rpx;
+  color: var(--green);
+}
+
+/* 文本域 */
+.form-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 24rpx;
+  background: var(--bg-color);
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 弹窗底部 */
+.modal-footer {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx 40rpx;
+  border-top: 2rpx solid rgba(126, 212, 166, 0.2);
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 28rpx;
+  text-align: center;
+  border-radius: 30rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.cancel-btn {
+  background: var(--bg-color);
+  color: var(--text-secondary);
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, var(--green) 0%, #A8E6CF 100%);
+  color: white;
+  box-shadow: 0 6rpx 16rpx rgba(126, 212, 166, 0.4);
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10rpx); }
+}

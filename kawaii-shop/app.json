@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/order/order",
+    "pages/manage/manage",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "ZY厨房",
+    "navigationBarBackgroundColor": "#FF9AAF",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FFF9F0"
+  },
+  "tabBar": {
+    "color": "#8B7B72",
+    "selectedColor": "#FF9AAF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/order/order",
+        "text": "点菜",
+        "iconPath": "images/tab-order.png",
+        "selectedIconPath": "images/tab-order-active.png"
+      },
+      {
+        "pagePath": "pages/manage/manage",
+        "text": "管理",
+        "iconPath": "images/tab-manage.png",
+        "selectedIconPath": "images/tab-manage-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "debug": false
+}

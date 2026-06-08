@@ -1,0 +1,143 @@
+<view class="order-page">
+  <!-- 顶部Header -->
+  <view class="header">
+    <view class="header-content">
+      <view class="page-title">今天吃什么？🤔</view>
+      <view class="page-subtitle">选择你喜欢的菜品吧~</view>
+    </view>
+    <view class="mascot">👨‍🍳</view>
+  </view>
+
+  <!-- 分类Tab -->
+  <view class="tab-container">
+    <view 
+      class="tab-item {{activeTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      bindtap="switchTab"
+      data-index="{{index}}">
+      <text class="tab-icon">{{item.icon}}</text>
+      <text class="tab-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 菜品列表 -->
+  <scroll-view class="dish-list" scroll-y enhanced="{{true}}">
+    <view class="dish-card" wx:for="{{currentDishes}}" wx:key="id">
+      <view class="dish-image-wrapper">
+        <image 
+          class="dish-image" 
+          src="{{item.images[0] || ''}}" 
+          mode="aspectFill"
+          wx:if="{{item.images && item.images.length > 0}}"
+        />
+        <view class="dish-image-placeholder" wx:else>
+          <text class="placeholder-icon">🍽️</text>
+        </view>
+      </view>
+      <view class="dish-info">
+        <view class="dish-header">
+          <text class="dish-name">{{item.name}}</text>
+          <view class="dish-category-tag">{{item.categoryName}}</view>
+        </view>
+        <text class="dish-desc">{{item.description}}</text>
+        <view class="dish-actions">
+          <view class="add-cart-btn" bindtap="addToCart" data-dish="{{item}}" hover-class="btn-hover">
+            <text class="add-icon">+</text>
+            <text class="add-text">加入点单</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{currentDishes.length === 0}}">
+      <view class="empty-icon">🍽️</view>
+      <text class="empty-text">还没有菜品哦~</text>
+      <text class="empty-hint">去管理页面添加吧 🐾</text>
+    </view>
+  </scroll-view>
+
+  <!-- 底部悬浮马卡龙小卡片（购物篮） -->
+  <view class="cart-float-card" wx:if="{{cartCount > 0}}" bindtap="showCartModal" hover-class="btn-hover">
+    <view class="card-left">
+      <text class="card-basket-icon">🧺</text>
+      <text class="card-text">已点 {{cartCount}} 道菜</text>
+    </view>
+    <view class="card-arrow">▴</view>
+  </view>
+
+  <!-- 底部滑出弹窗遮罩 -->
+  <view class="popup-mask {{showCartModal ? 'popup-mask--visible' : ''}}" wx:if="{{showCartModal}}" bindtap="closeCartModal" catchtouchmove="preventMove">
+    <view class="popup-sheet {{showCartModal ? 'popup-sheet--visible' : ''}}" catchtap="stopPropagation">
+      <!-- 弹窗顶部把手 -->
+      <view class="popup-handle-bar">
+        <view class="popup-handle"></view>
+      </view>
+
+      <view class="popup-header">
+        <text class="popup-title">我的点菜篮 🧺</text>
+        <view class="popup-close-btn" bindtap="closeCartModal" hover-class="btn-hover">
+          <text class="popup-close-icon">×</text>
+        </view>
+      </view>
+
+      <scroll-view class="popup-body" scroll-y enhanced="{{true}}">
+        <!-- 已点菜品列表 -->
+        <view class="cart-dish-item" wx:for="{{cartItems}}" wx:key="index">
+          <!-- 菜品主行：点击展开/折叠菜谱 -->
+          <view class="cart-dish-row" bindtap="toggleRecipe" data-index="{{index}}" hover-class="btn-hover">
+            <view class="cart-dish-info">
+              <text class="cart-dish-name">{{item.dish.name}}</text>
+              <text class="cart-dish-category-tag">{{item.dish.categoryName}}</text>
+            </view>
+            <view class="cart-dish-right">
+              <view class="cart-qty-control">
+                <view class="qty-btn qty-btn--minus" catchtap="decreaseQuantity" data-index="{{index}}" hover-class="btn-hover">−</view>
+                <text class="qty-num">{{item.quantity}}</text>
+                <view class="qty-btn qty-btn--plus" catchtap="increaseQuantity" data-index="{{index}}" hover-class="btn-hover">+</view>
+              </view>
+              <text class="expand-arrow {{recipeExpandIndex === index ? 'expand-arrow--up' : ''}}">▾</text>
+            </view>
+          </view>
+
+          <!-- 折叠菜谱详情面板 -->
+          <view class="recipe-panel {{recipeExpandIndex === index ? 'recipe-panel--open' : ''}}">
+            <view class="recipe-panel-inner">
+              <view class="recipe-section-title">📖 菜谱做法</view>
+              <!-- 菜谱步骤 -->
+              <view class="recipe-steps" wx:if="{{item.recipeSteps.length > 0}}">
+                <view class="recipe-step-item" wx:for="{{item.recipeSteps}}" wx:for-item="step" wx:key="*this">
+                  <text class="step-dot">●</text>
+                  <text class="step-text">{{step}}</text>
+                </view>
+              </view>
+              <view class="recipe-empty" wx:else>
+                <text class="recipe-empty-text">暂无菜谱~</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 空状态 -->
+        <view class="empty-cart" wx:if="{{cartItems.length === 0}}">
+          <text class="empty-cart-icon">🧺</text>
+          <text class="empty-cart-text">点菜篮是空的哦~</text>
+          <text class="empty-cart-hint">快去挑选喜欢的菜品吧 🐾</text>
+        </view>
+      </scroll-view>
+
+      <!-- 底部操作栏 -->
+      <view class="popup-footer">
+        <view class="footer-info">
+          <text class="footer-total-label">共</text>
+          <text class="footer-total-num">{{cartCount}}</text>
+          <text class="footer-total-label">道菜</text>
+        </view>
+        <view class="footer-confirm-btn" bindtap="confirmOrder" hover-class="btn-hover">
+          <text>确认下单 🎉</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
