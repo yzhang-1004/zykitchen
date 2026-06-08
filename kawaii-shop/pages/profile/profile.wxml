@@ -77,6 +77,9 @@
           <text class="history-time">{{item.time}}</text>
         </view>
         <view class="history-stars">+{{item.stars}}⭐</view>
+        <view class="history-delete" bindtap="deleteCookRecord" data-record="{{item}}" data-index="{{index}}">
+          <text>🗑️</text>
+        </view>
       </view>
     </view>
 

@@ -93,31 +93,70 @@ Page({
   
   // 更新星星数（本地+云端）
   async updateStarCount(newCount) {
-    // 1. 更新本地数据
+    const oldCount = this.data.starCount;
+    const diff = newCount - oldCount;
     app.globalData.starCount = newCount;
-    
-    // 2. 重新计算头衔
     this.loadData();
     
-    // 3. 同步到云数据库
     try {
-      const result = await db.get('user_stats', {}, 1);
+      const myOpenid = await db.getOpenid();
+      const result = await db.get('user_stats', { _openid: myOpenid }, 1);
+      
       if (result.success && result.data.length > 0) {
-        // 有记录，更新
-        await db.update('user_stats', result.data[0]._id, {
-          starCount: newCount
+        const docId = result.data[0]._id;
+        const _ = db._;
+        await db.collection('user_stats').doc(docId).update({
+          data: { starCount: _.inc(diff) }
         });
-        console.log('更新星星数成功:', newCount);
       } else {
-        // 没有记录，新增
-        const addResult = await db.add('user_stats', {
+        await db.add('user_stats', {
           starCount: newCount,
           cookHistory: []
         });
-        console.log('创建星星记录成功:', addResult);
       }
     } catch (err) {
       console.error('同步星星数失败:', err);
+    }
+  },
+  
+  // 删除烹饪记录
+  async deleteCookRecord(e) {
+    const record = e.currentTarget.dataset.record;
+    const index = e.currentTarget.dataset.index;
+    
+    wx.showModal({
+      title: '删除确认',
+      content: `确定删除「${record.dishName}」的烹饪记录吗？星星数也会减少${record.stars}颗。`,
+      success: async (res) => {
+        if (res.confirm) {
+          const cookHistory = [...this.data.cookHistory];
+          cookHistory.splice(index, 1);
+          const newStarCount = Math.max(0, this.data.starCount - record.stars);
+          
+          this.setData({ cookHistory, starCount: newStarCount });
+          app.globalData.starCount = newStarCount;
+          app.globalData.cookHistory = cookHistory;
+          this.loadData();
+          
+          await this.syncUserStats(newStarCount, cookHistory);
+          wx.showToast({ title: '已删除', icon: 'success' });
+        }
+      }
+    });
+  },
+  
+  // 同步用户统计数据到云端
+  async syncUserStats(starCount, cookHistory) {
+    try {
+      const myOpenid = await db.getOpenid();
+      const result = await db.get('user_stats', { _openid: myOpenid }, 1);
+      if (result.success && result.data.length > 0) {
+        await db.update('user_stats', result.data[0]._id, {
+          starCount, cookHistory
+        });
+      }
+    } catch (err) {
+      console.error('同步失败:', err);
     }
   }
 });

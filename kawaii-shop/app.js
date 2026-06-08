@@ -87,11 +87,12 @@ App({
     
     try {
       // 并行加载所有数据
+      const myOpenid = await db.getOpenid();
       const [dishesRes, cartRes, todoRes, statsRes] = await Promise.all([
         db.get('dishes'),
-        db.get('cart_items'),
-        db.get('todo_orders', { status: 'pending' }),
-        db.get('user_stats')
+        db.get('cart_items', { _openid: myOpenid }),
+        db.get('todo_orders', { status: 'pending', _openid: myOpenid }),
+        db.get('user_stats', { _openid: myOpenid })
       ]);
       
       // 更新全局数据

@@ -248,6 +248,13 @@
   color: var(--orange);
 }
 
+.history-delete {
+  margin-left: auto;
+  padding: 10rpx 16rpx;
+  font-size: 32rpx;
+  opacity: 0.5;
+}
+
 .empty-history {
   display: flex;
   flex-direction: column;

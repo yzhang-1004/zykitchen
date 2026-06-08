@@ -94,14 +94,27 @@ class DB {
   }
 
   /**
-   * 获取当前用户的openid
+   * 获取当前用户的openid（不依赖云函数）
    */
   async getOpenid() {
+    if (this._openid) return this._openid;
+    
     try {
-      const { result } = await wx.cloud.callFunction({
-        name: 'login'
-      });
-      return result.openid;
+      const cached = wx.getStorageSync('my_openid');
+      if (cached) {
+        this._openid = cached;
+        return cached;
+      }
+    } catch (e) {}
+    
+    try {
+      const db = wx.cloud.database();
+      const res = await db.collection('temp_openid').add({ data: { t: Date.now() } });
+      const doc = await db.collection('temp_openid').doc(res._id).get();
+      this._openid = doc.data._openid;
+      wx.setStorageSync('my_openid', this._openid);
+      db.collection('temp_openid').doc(res._id).remove().catch(() => {});
+      return this._openid;
     } catch (err) {
       console.error('获取openid失败:', err);
       return null;
