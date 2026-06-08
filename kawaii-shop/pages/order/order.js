@@ -26,8 +26,21 @@ Page({
   },
 
   onShow() {
-    this.loadDishes();
-    this.updateCartCount();
+    // 等待数据加载完成
+    if (app.globalData.dataLoading) {
+      wx.showLoading({ title: '加载中...', icon: 'none' });
+      const checkDataLoaded = setInterval(() => {
+        if (!app.globalData.dataLoading) {
+          clearInterval(checkDataLoaded);
+          wx.hideLoading();
+          this.loadDishes();
+          this.updateCartCount();
+        }
+      }, 100);
+    } else {
+      this.loadDishes();
+      this.updateCartCount();
+    }
   },
 
   // 加载菜品数据

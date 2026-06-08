@@ -4,18 +4,25 @@ App({
     console.log('当前环境:', __wxConfig.envVersion);
     console.log('基础库版本:', wx.version);
     
+    // 设置加载状态
+    this.globalData.dataLoading = true;
+    
     // 初始化云开发环境
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+      this.globalData.dataLoading = false;
     } else {
       wx.cloud.init({
-        env: 'kawaii-shop-xxxxx',  // TODO: 请替换为您的云环境ID
+        env: 'cloud1-d8g71kyh480d81f35',  // 云环境ID
         traceUser: true
       });
       console.log('云开发初始化成功');
       
       // 从云数据库加载数据
       await this.loadUserData();
+      
+      // 加载完成
+      this.globalData.dataLoading = false;
     }
     
     // 开发版强制清除缓存
@@ -121,6 +128,7 @@ App({
     cartItems: [],        // 点菜篮 [{dish, quantity}]
     todoOrders: [],       // 待做菜品 [{id, dishName, dish, quantity, time, recipeSteps}]
     starCount: 0,         // 星星总数
-    cookHistory: []       // 烹饪记录 [{dishName, time, stars}]
+    cookHistory: [],      // 烹饪记录 [{dishName, time, stars}]
+    dataLoading: false    // 数据加载状态
   }
 })

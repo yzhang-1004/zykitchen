@@ -9,7 +9,19 @@ Page({
   },
 
   onShow() {
-    this.loadData();
+    // 等待数据加载完成
+    if (app.globalData.dataLoading) {
+      wx.showLoading({ title: '加载中...', icon: 'none' });
+      const checkDataLoaded = setInterval(() => {
+        if (!app.globalData.dataLoading) {
+          clearInterval(checkDataLoaded);
+          wx.hideLoading();
+          this.loadData();
+        }
+      }, 100);
+    } else {
+      this.loadData();
+    }
   },
 
   loadData() {
