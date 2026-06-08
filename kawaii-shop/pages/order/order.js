@@ -22,7 +22,10 @@ Page({
     recipeExpandIndex: -1,  // 当前展开菜谱的索引，-1表示无展开
     
     // 节流标志
-    _syncing: false
+    _syncing: false,
+    
+    // 版本号
+    version: '1.2.0'
   },
 
   onShow() {

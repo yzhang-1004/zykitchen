@@ -6,6 +6,7 @@
       <view class="page-subtitle">选择你喜欢的菜品吧~</view>
     </view>
     <view class="mascot">👨‍🍳</view>
+    <view class="version-tag">v{{version}}</view>
   </view>
 
   <!-- 分类Tab -->
