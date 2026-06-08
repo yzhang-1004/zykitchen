@@ -9,8 +9,10 @@
     <view class="star-jar">
       <view class="jar-icon">🏺</view>
       <view class="star-count {{starCount > 0 ? 'animate' : ''}}">
+        <view class="star-btn star-btn-minus" bindtap="decreaseStar" hover-class="btn-hover">−</view>
         <text class="star-number">{{starCount}}</text>
         <text class="star-label">颗星星</text>
+        <view class="star-btn star-btn-plus" bindtap="increaseStar" hover-class="btn-hover">+</view>
       </view>
     </view>
   </view>

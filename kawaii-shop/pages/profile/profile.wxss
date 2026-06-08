@@ -45,11 +45,37 @@
 }
 
 .star-count {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
 }
 
 .star-count.animate .star-number {
   animation: star-bounce 0.6s ease;
+}
+
+/* 星星加减按钮 */
+.star-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  font-size: 36rpx;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.star-btn-minus {
+  background: rgba(255, 154, 175, 0.2);
+  color: #FF9AAF;
+}
+
+.star-btn-plus {
+  background: rgba(255, 183, 77, 0.2);
+  color: #FFB74D;
 }
 
 .star-number {
@@ -58,7 +84,6 @@
   font-weight: bold;
   color: var(--orange);
   line-height: 1;
-  margin-bottom: 8rpx;
 }
 
 .star-label {

@@ -1,4 +1,5 @@
 const app = getApp();
+const db = require('../../utils/db');
 
 Page({
   data: {
@@ -69,5 +70,45 @@ Page({
       titleIcon,
       cookHistory
     });
+  },
+  
+  // 增加星星
+  async increaseStar() {
+    const newCount = this.data.starCount + 1;
+    await this.updateStarCount(newCount);
+  },
+  
+  // 减少星星
+  async decreaseStar() {
+    if (this.data.starCount <= 0) {
+      wx.showToast({
+        title: '已经是0颗星星了~',
+        icon: 'none'
+      });
+      return;
+    }
+    const newCount = this.data.starCount - 1;
+    await this.updateStarCount(newCount);
+  },
+  
+  // 更新星星数（本地+云端）
+  async updateStarCount(newCount) {
+    // 1. 更新本地数据
+    app.globalData.starCount = newCount;
+    
+    // 2. 重新计算头衔
+    this.loadData();
+    
+    // 3. 同步到云数据库
+    try {
+      const result = await db.get('user_stats', {}, 1);
+      if (result.success && result.data.length > 0) {
+        await db.update('user_stats', result.data[0]._id, {
+          starCount: newCount
+        });
+      }
+    } catch (err) {
+      console.error('同步星星数失败:', err);
+    }
   }
 });
