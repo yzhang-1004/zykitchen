@@ -149,6 +149,14 @@ App({
     callbacks.forEach(cb => cb());
     this.globalData.dataLoadCallbacks = [];
   },
+  
+  /**
+   * 刷新数据（公开方法，供页面调用）
+   */
+  async refreshData() {
+    await this.loadUserData();
+    this.notifyDataLoaded();
+  },
   globalData: {
     dishes: [],           // 菜品列表
     cartItems: [],        // 点菜篮 [{dish, quantity}]

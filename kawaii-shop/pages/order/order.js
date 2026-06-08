@@ -32,6 +32,35 @@ Page({
       this.updateCartCount();
     });
   },
+  
+  // 下拉刷新
+  async onPullDownRefresh() {
+    try {
+      // 从云端重新加载数据
+      await app.refreshData();
+      
+      // 刷新页面数据
+      this.loadDishes();
+      this.updateCartCount();
+      
+      // 停止下拉刷新动画
+      wx.stopPullDownRefresh();
+      
+      // 显示成功提示
+      wx.showToast({
+        title: '刷新成功',
+        icon: 'success',
+        duration: 1000
+      });
+    } catch (err) {
+      wx.stopPullDownRefresh();
+      wx.showToast({
+        title: '刷新失败',
+        icon: 'none'
+      });
+      console.error('刷新失败:', err);
+    }
+  },
 
   // 加载菜品数据
   loadDishes() {
