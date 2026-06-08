@@ -6,6 +6,7 @@ App({
     
     // 设置加载状态
     this.globalData.dataLoading = true;
+    this.globalData.dataLoadCallbacks = [];
     
     // 初始化云开发环境
     if (!wx.cloud) {
@@ -23,6 +24,9 @@ App({
       
       // 加载完成
       this.globalData.dataLoading = false;
+      
+      // 通知所有等待的页面
+      this.notifyDataLoaded();
     }
     
     // 开发版强制清除缓存
@@ -122,6 +126,28 @@ App({
     } finally {
       wx.hideLoading();
     }
+  },
+  
+  /**
+   * 注册数据加载完成回调
+   */
+  onDataLoaded(callback) {
+    if (this.globalData.dataLoading) {
+      // 还在加载中，添加到回调列表
+      this.globalData.dataLoadCallbacks.push(callback);
+    } else {
+      // 已经加载完成，立即执行
+      callback();
+    }
+  },
+  
+  /**
+   * 通知所有页面数据加载完成
+   */
+  notifyDataLoaded() {
+    const callbacks = this.globalData.dataLoadCallbacks || [];
+    callbacks.forEach(cb => cb());
+    this.globalData.dataLoadCallbacks = [];
   },
   globalData: {
     dishes: [],           // 菜品列表

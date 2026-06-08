@@ -41,21 +41,11 @@ Page({
   },
 
   onShow() {
-    // 等待数据加载完成
-    if (app.globalData.dataLoading) {
-      wx.showLoading({ title: '加载中...', icon: 'none' });
-      const checkDataLoaded = setInterval(() => {
-        if (!app.globalData.dataLoading) {
-          clearInterval(checkDataLoaded);
-          wx.hideLoading();
-          this.loadDishes();
-          this.loadTodoOrders();
-        }
-      }, 100);
-    } else {
+    // 注册数据加载完成回调
+    app.onDataLoaded(() => {
       this.loadDishes();
       this.loadTodoOrders();
-    }
+    });
   },
 
   // 加载待做菜品
