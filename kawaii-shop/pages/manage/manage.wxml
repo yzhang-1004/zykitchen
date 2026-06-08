@@ -4,6 +4,7 @@
     <view class="header-content">
       <view class="page-title">菜品管理 🍳</view>
       <view class="page-subtitle">管理你的美味佳肴</view>
+      <text class="migrate-btn" bindtap="migrateData">🔄 迁移旧数据</text>
     </view>
     <view class="mascot">👨‍🍳</view>
   </view>

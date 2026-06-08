@@ -25,7 +25,7 @@ Page({
     _syncing: false,
     
     // 版本号
-    version: '1.5.3'
+    version: '1.6.5'
   },
 
   onShow() {
@@ -66,10 +66,34 @@ Page({
   },
 
   // 加载菜品数据
-  loadDishes() {
+  async loadDishes() {
+    const db = require('../../utils/db');
     const dishes = app.globalData.dishes || [];
+    
+    // 先显示无图片的菜品列表
     this.setData({ allDishes: dishes });
     this.updateCurrentDishes();
+    
+    // 异步加载每个菜品的第一张图片
+    for (const dish of dishes) {
+      if (dish._id) {
+        try {
+          const images = await db.getDishImages(dish._id, 'dish');
+          if (images.length > 0) {
+            const updated = this.data.allDishes.map(d => {
+              if (d._id === dish._id) {
+                return { ...d, images: [images[0]] };
+              }
+              return d;
+            });
+            this.setData({ allDishes: updated });
+            this.updateCurrentDishes();
+          }
+        } catch (err) {
+          console.error('加载图片失败:', dish.name, err);
+        }
+      }
+    }
   },
 
   // 更新当前分类的菜品列表

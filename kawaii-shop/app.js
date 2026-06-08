@@ -86,9 +86,9 @@ App({
       const myOpenid = await db.getOpenid();
       console.log('openid:', myOpenid);
       
-      // 并行加载所有数据
+      // 并行加载所有数据（dishes 排除旧的图片字段，避免超1MB）
       const [dishesRes, cartRes, todoRes, statsRes] = await Promise.all([
-        db.get('dishes'),
+        db.get('dishes', {}, 100, { images: false, recipeImages: false }),
         db.get('cart_items', { _openid: myOpenid }),
         db.get('todo_orders', { status: 'pending', _openid: myOpenid }),
         db.get('user_stats', { _openid: myOpenid })

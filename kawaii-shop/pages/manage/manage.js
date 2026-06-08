@@ -1,4 +1,4 @@
-const app = getApp();
+﻿const app = getApp();
 const db = require('../../utils/db');
 const upload = require('../../utils/upload');
 const _ = db._;
@@ -206,10 +206,31 @@ Page({
   },
 
   // 加载菜品数据
-  loadDishes() {
+  async loadDishes() {
     const dishes = app.globalData.dishes || [];
     this.setData({ allDishes: dishes });
     this.updateCurrentDishes();
+    
+    // 异步加载每个菜品的第一张图片
+    for (const dish of dishes) {
+      if (dish._id) {
+        try {
+          const images = await db.getDishImages(dish._id, 'dish');
+          if (images.length > 0) {
+            const updated = this.data.allDishes.map(d => {
+              if (d._id === dish._id) {
+                return { ...d, images: [images[0]] };
+              }
+              return d;
+            });
+            this.setData({ allDishes: updated });
+            this.updateCurrentDishes();
+          }
+        } catch (err) {
+          console.error('加载图片失败:', dish.name, err);
+        }
+      }
+    }
   },
 
   // 切换Tab
@@ -239,23 +260,43 @@ Page({
   },
 
   // 打开编辑弹窗
-  openEditDish(e) {
+  async openEditDish(e) {
     const dish = e.currentTarget.dataset.dish;
+    
+    // 先打开弹窗（不含图片）
     this.setData({
       showModal: true,
       isEditMode: true,
       formData: {
-        _id: dish._id || null,  // 保存云数据库ID
+        _id: dish._id || null,
         id: dish.id,
         name: dish.name,
         category: dish.category,
         categoryName: dish.categoryName,
         description: dish.description || '',
-        images: dish.images || [],
+        images: [],
         recipe: dish.recipe || '',
-        recipeImages: dish.recipeImages || []
+        recipeImages: [],
+        hasImages: dish.hasImages || false,
+        hasRecipeImages: dish.hasRecipeImages || false
       }
     });
+    
+    // 异步加载图片
+    if (dish._id) {
+      wx.showLoading({ title: '加载图片...', icon: 'none' });
+      try {
+        const imgData = await db.getDishImages(dish._id);
+        this.setData({
+          'formData.images': imgData.dish || [],
+          'formData.recipeImages': imgData.recipe || []
+        });
+      } catch (err) {
+        console.error('加载图片失败:', err);
+      } finally {
+        wx.hideLoading();
+      }
+    }
   },
 
   // 关闭弹窗
@@ -396,27 +437,33 @@ Page({
         recipeImages = await upload.uploadImages(this.data.formData.recipeImages, 'recipe');
       }
       
-      // 2. 准备数据
+      // 2. 准备数据（不含图片，图片存单独集合）
       const dishData = {
         id: this.data.formData.id || Date.now(),
         name: name,
         category: category,
         categoryName: categoryName,
         description: this.data.formData.description,
-        images: images,
         recipe: this.data.formData.recipe,
-        recipeImages: recipeImages,
+        hasImages: images.length > 0,
+        hasRecipeImages: recipeImages.length > 0,
         cookCount: this.data.isEditMode ? (this.data.formData.cookCount || 0) : 0
       };
       
       const dishes = app.globalData.dishes || [];
+      let dishId = this.data.formData._id;
       
-      if (this.data.isEditMode && this.data.formData._id) {
-        // 3. 编辑：更新云数据库
-        await db.update('dishes', this.data.formData._id, dishData);
+      if (this.data.isEditMode && dishId) {
+        // 3. 编辑：更新云数据库（只更新文字）
+        await db.update('dishes', dishId, dishData);
         
-        // 4. 更新本地数据
-        const index = dishes.findIndex(d => d._id === this.data.formData._id);
+        // 4. 保存图片到单独集合
+        if (images.length > 0 || recipeImages.length > 0) {
+          await db.saveDishImages(dishId, images, recipeImages);
+        }
+        
+        // 5. 更新本地数据
+        const index = dishes.findIndex(d => d._id === dishId);
         if (index !== -1) {
           dishes[index] = {
             ...dishes[index],
@@ -430,14 +477,21 @@ Page({
           duration: 1500
         });
       } else {
-        // 5. 新增：添加到云数据库
+        // 6. 新增：添加到云数据库（只添加文字）
         const result = await db.add('dishes', dishData);
         
         if (result.success) {
-          // 6. 添加到本地数据
+          dishId = result.data._id;
+          
+          // 7. 保存图片到单独集合
+          if (images.length > 0 || recipeImages.length > 0) {
+            await db.saveDishImages(dishId, images, recipeImages);
+          }
+          
+          // 8. 添加到本地数据
           dishes.push({
             ...dishData,
-            _id: result.data._id
+            _id: dishId
           });
           
           wx.showToast({
@@ -478,19 +532,12 @@ Page({
           wx.showLoading({ title: '删除中...', icon: 'none' });
           
           try {
-            // 1. 从云数据库删除
+            // 1. 从云数据库删除菜品
             if (dish._id) {
               await db.remove('dishes', dish._id);
+              // 2. 删除关联的图片
+              await db.deleteDishImages(dish._id);
             }
-            
-            // 2. 删除云存储图片（可选，这里先不删除，避免误删）
-            // if (dish.images && dish.images.length > 0) {
-            //   for (const img of dish.images) {
-            //     if (img.startsWith('cloud://')) {
-            //       await upload.deleteImage(img);
-            //     }
-            //   }
-            // }
             
             // 3. 从本地数据删除
             let dishes = app.globalData.dishes || [];
@@ -587,5 +634,57 @@ Page({
         icon: 'none'
       });
     }
+  },
+
+  // 迁移旧数据（将内嵌base64图片迁移到 dish_images 集合，并压缩旧图片）
+  migrateData() {
+    wx.showModal({
+      title: '迁移并压缩图片',
+      content: '1. 迁移旧版内嵌图片\n2. 压缩已迁移的大图片\n是否继续？',
+      confirmText: '开始',
+      confirmColor: '#FF9AAF',
+      success: async (res) => {
+        if (!res.confirm) return;
+
+        wx.showLoading({ title: '迁移中...', icon: 'none' });
+
+        try {
+          // 第1步：迁移旧图片（同时压缩）
+          const migrateResult = await db.migrateAllDishes(
+            (current, name, status) => {
+              if (status === 'migrating') {
+                wx.showLoading({ title: `迁移: ${name}`, icon: 'none' });
+              }
+            },
+            upload.compressBase64Image
+          );
+
+          // 第2步：重新压缩已迁移的大图片
+          wx.showLoading({ title: '压缩图片中...', icon: 'none' });
+          const compressResult = await db.recompressAllDishImages(
+            upload.compressBase64Image,
+            (dishId, type) => {
+              wx.showLoading({ title: `压缩: ${type} 图片`, icon: 'none' });
+            }
+          );
+
+          wx.hideLoading();
+
+          // 刷新数据
+          await app.refreshData();
+          this.loadDishes();
+
+          wx.showModal({
+            title: '完成 ✅',
+            content: `迁移: ${migrateResult.migrated} 个\n压缩: ${compressResult.recompressed} 张图片`,
+            showCancel: false
+          });
+        } catch (err) {
+          wx.hideLoading();
+          console.error('迁移失败:', err);
+          wx.showToast({ title: '迁移失败', icon: 'none' });
+        }
+      }
+    });
   }
 });

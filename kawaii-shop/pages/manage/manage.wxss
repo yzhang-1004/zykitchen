@@ -30,6 +30,15 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
+.migrate-btn {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 8rpx;
+  padding: 4rpx 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.5);
+  border-radius: 20rpx;
+}
+
 .mascot {
   font-size: 80rpx;
   animation: float 3s ease-in-out infinite;
