@@ -103,9 +103,18 @@ Page({
     try {
       const result = await db.get('user_stats', {}, 1);
       if (result.success && result.data.length > 0) {
+        // 有记录，更新
         await db.update('user_stats', result.data[0]._id, {
           starCount: newCount
         });
+        console.log('更新星星数成功:', newCount);
+      } else {
+        // 没有记录，新增
+        const addResult = await db.add('user_stats', {
+          starCount: newCount,
+          cookHistory: []
+        });
+        console.log('创建星星记录成功:', addResult);
       }
     } catch (err) {
       console.error('同步星星数失败:', err);
