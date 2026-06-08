@@ -39,8 +39,9 @@ async function processImage(filePath) {
     // 已经是base64，直接保留
     return filePath;
   } else if (filePath.startsWith('cloud://')) {
-    // 云存储路径，保留（仅上传者自己能看到）
-    return filePath;
+    // 云存储路径，已无法跨设备访问，丢弃
+    console.warn('丢弃旧云存储图片:', filePath);
+    return null;
   } else if (filePath.startsWith('http')) {
     // 临时URL，保留
     return filePath;
@@ -60,7 +61,9 @@ async function uploadImages(filePaths) {
   for (const path of filePaths) {
     try {
       const processed = await processImage(path);
-      results.push(processed);
+      if (processed) {
+        results.push(processed);
+      }
     } catch (err) {
       console.error('图片处理失败:', path, err);
     }

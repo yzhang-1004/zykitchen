@@ -379,27 +379,15 @@ Page({
     wx.showLoading({ title: '保存中...', icon: 'none' });
 
     try {
-      // 1. 上传图片到云存储（只上传本地图片，跳过已经是云存储路径的图片）
+      // 1. 处理图片（base64跳过，cloud://和本地图片都会处理）
       let images = [];
-      const localImages = this.data.formData.images.filter(img => !img.startsWith('cloud://'));
-      const cloudImages = this.data.formData.images.filter(img => img.startsWith('cloud://'));
-      
-      if (localImages.length > 0) {
-        const uploadedImages = await upload.uploadImages(localImages, 'dish');
-        images = [...cloudImages, ...uploadedImages];
-      } else {
-        images = cloudImages;
+      if (this.data.formData.images.length > 0) {
+        images = await upload.uploadImages(this.data.formData.images, 'dish');
       }
       
       let recipeImages = [];
-      const localRecipeImages = this.data.formData.recipeImages.filter(img => !img.startsWith('cloud://'));
-      const cloudRecipeImages = this.data.formData.recipeImages.filter(img => img.startsWith('cloud://'));
-      
-      if (localRecipeImages.length > 0) {
-        const uploadedRecipeImages = await upload.uploadImages(localRecipeImages, 'recipe');
-        recipeImages = [...cloudRecipeImages, ...uploadedRecipeImages];
-      } else {
-        recipeImages = cloudRecipeImages;
+      if (this.data.formData.recipeImages.length > 0) {
+        recipeImages = await upload.uploadImages(this.data.formData.recipeImages, 'recipe');
       }
       
       // 2. 准备数据

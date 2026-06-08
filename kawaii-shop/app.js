@@ -1,5 +1,5 @@
 App({
-  async onLaunch() {
+  onLaunch() {
     console.log('ZY厨房小程序启动啦~ 🎉');
     console.log('当前环境:', __wxConfig.envVersion);
     console.log('基础库版本:', wx.version);
@@ -19,14 +19,8 @@ App({
       });
       console.log('云开发初始化成功');
       
-      // 从云数据库加载数据
-      await this.loadUserData();
-      
-      // 加载完成
-      this.globalData.dataLoading = false;
-      
-      // 通知所有等待的页面
-      this.notifyDataLoaded();
+      // 从云数据库加载数据（异步后台加载，不阻塞启动）
+      this.loadUserData();
     }
     
     // 开发版强制清除缓存
@@ -86,8 +80,13 @@ App({
     wx.showLoading({ title: '加载数据中...', icon: 'none' });
     
     try {
-      // 并行加载所有数据
+      console.log('开始加载数据...');
+      
+      // 先获取openid（可能较慢，有本地缓存）
       const myOpenid = await db.getOpenid();
+      console.log('openid:', myOpenid);
+      
+      // 并行加载所有数据
       const [dishesRes, cartRes, todoRes, statsRes] = await Promise.all([
         db.get('dishes'),
         db.get('cart_items', { _openid: myOpenid }),
@@ -103,18 +102,15 @@ App({
       
       if (cartRes.success && cartRes.data.length > 0) {
         this.globalData.cartItems = cartRes.data[0].items || [];
-        console.log('加载购物车:', this.globalData.cartItems.length);
       }
       
       if (todoRes.success) {
         this.globalData.todoOrders = todoRes.data;
-        console.log('加载待做订单:', todoRes.data.length);
       }
       
       if (statsRes.success && statsRes.data.length > 0) {
         this.globalData.starCount = statsRes.data[0].starCount || 0;
         this.globalData.cookHistory = statsRes.data[0].cookHistory || [];
-        console.log('加载统计数据: 星星', this.globalData.starCount);
       }
       
       console.log('数据加载完成 ✅');
@@ -126,6 +122,8 @@ App({
       });
     } finally {
       wx.hideLoading();
+      this.globalData.dataLoading = false;
+      this.notifyDataLoaded();
     }
   },
   
