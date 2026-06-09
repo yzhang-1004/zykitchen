@@ -36,8 +36,12 @@ Page({
       description: '',
       images: [],
       recipe: '',
-      recipeImages: []
-    }
+      recipeImages: [],
+      ingredients: []
+    },
+    
+    // 汇总采购清单
+    shoppingList: []
   },
 
   onShow() {
@@ -81,6 +85,26 @@ Page({
   loadTodoOrders() {
     const todoOrders = app.globalData.todoOrders || [];
     this.setData({ todoOrders: todoOrders });
+    this._updateShoppingList(todoOrders);
+  },
+
+  // 计算汇总采购清单
+  _updateShoppingList(todoOrders) {
+    const map = {};  // {食材名: [菜名1, 菜名2]}
+    for (const order of todoOrders) {
+      const ingredients = order.ingredients || [];
+      for (const ing of ingredients) {
+        if (!map[ing]) map[ing] = [];
+        if (!map[ing].includes(order.dishName)) {
+          map[ing].push(order.dishName);
+        }
+      }
+    }
+    const shoppingList = Object.keys(map).map(name => ({
+      name,
+      dishes: map[name].join('、')
+    }));
+    this.setData({ shoppingList });
   },
 
   // 展开/折叠待做菜品菜谱
@@ -254,7 +278,8 @@ Page({
         description: '',
         images: [],
         recipe: '',
-        recipeImages: []
+        recipeImages: [],
+        ingredients: []
       }
     });
   },
@@ -277,6 +302,7 @@ Page({
         images: [],
         recipe: dish.recipe || '',
         recipeImages: [],
+        ingredients: dish.ingredients || [],
         hasImages: dish.hasImages || false,
         hasRecipeImages: dish.hasRecipeImages || false
       }
@@ -402,6 +428,32 @@ Page({
     });
   },
 
+  // 添加食材
+  addIngredient() {
+    const ingredients = [...this.data.formData.ingredients];
+    if (ingredients.length >= 20) {
+      wx.showToast({ title: '最多添加20种食材', icon: 'none' });
+      return;
+    }
+    ingredients.push('');
+    this.setData({ 'formData.ingredients': ingredients });
+  },
+
+  // 删除食材
+  removeIngredient(e) {
+    const index = e.currentTarget.dataset.index;
+    const ingredients = [...this.data.formData.ingredients];
+    ingredients.splice(index, 1);
+    this.setData({ 'formData.ingredients': ingredients });
+  },
+
+  // 输入食材内容
+  onIngredientInput(e) {
+    const index = e.currentTarget.dataset.index;
+    const value = e.detail.value;
+    this.setData({ [`formData.ingredients[${index}]`]: value });
+  },
+
   // 提交菜品（新增或编辑）
   async submitDish() {
     const { name, category, categoryName } = this.data.formData;
@@ -445,6 +497,7 @@ Page({
         categoryName: categoryName,
         description: this.data.formData.description,
         recipe: this.data.formData.recipe,
+        ingredients: (this.data.formData.ingredients || []).filter(i => i.trim()),
         hasImages: images.length > 0,
         hasRecipeImages: recipeImages.length > 0,
         cookCount: this.data.isEditMode ? (this.data.formData.cookCount || 0) : 0

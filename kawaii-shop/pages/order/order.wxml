@@ -105,8 +105,17 @@
           <!-- 折叠菜谱详情面板 -->
           <view class="recipe-panel {{recipeExpandIndex === index ? 'recipe-panel--open' : ''}}">
             <view class="recipe-panel-inner">
-              <view class="recipe-section-title">📖 菜谱做法</view>
+              <!-- 食材标签 -->
+              <view class="recipe-section-title">🛒 食材</view>
+              <view class="ingredient-tags" wx:if="{{item.ingredients && item.ingredients.length > 0}}">
+                <text class="ingredient-tag" wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="*this">{{ing}}</text>
+              </view>
+              <view class="recipe-empty" wx:else>
+                <text class="recipe-empty-text">暂无食材~</text>
+              </view>
+
               <!-- 菜谱步骤 -->
+              <view class="recipe-section-title" style="margin-top: 16rpx;">📖 做法</view>
               <view class="recipe-steps" wx:if="{{item.recipeSteps.length > 0}}">
                 <view class="recipe-step-item" wx:for="{{item.recipeSteps}}" wx:for-item="step" wx:key="*this">
                   <text class="step-dot">●</text>

@@ -20,6 +20,17 @@
       <text class="todo-subtitle">点菜后这里会显示待做清单哦~</text>
     </view>
 
+    <!-- 汇总采购清单 -->
+    <view class="shopping-list-section" wx:if="{{shoppingList.length > 0}}">
+      <text class="shopping-list-title">🛒 采购清单</text>
+      <view class="shopping-list-items">
+        <view class="shopping-item" wx:for="{{shoppingList}}" wx:key="name">
+          <text class="shopping-name">{{item.name}}</text>
+          <text class="shopping-dishes">— {{item.dishes}}</text>
+        </view>
+      </view>
+    </view>
+
     <scroll-view class="todo-list" scroll-y enhanced="{{true}}">
       <view class="todo-card" wx:for="{{todoOrders}}" wx:key="id">
         <!-- 菜品主行：点击展开/折叠菜谱 -->
@@ -38,7 +49,17 @@
         <!-- 折叠菜谱面板 -->
         <view class="todo-recipe-panel {{todoExpandIndex === index ? 'todo-recipe-panel--open' : ''}}">
           <view class="todo-recipe-inner">
-            <view class="todo-recipe-title">📖 菜谱做法</view>
+            <!-- 食材标签 -->
+            <view class="todo-recipe-title">🛒 食材</view>
+            <view class="todo-ingredient-tags" wx:if="{{item.ingredients && item.ingredients.length > 0}}">
+              <text class="ingredient-tag" wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="*this">{{ing}}</text>
+            </view>
+            <view class="todo-recipe-empty" wx:else>
+              <text class="todo-recipe-empty-text">暂无食材清单</text>
+            </view>
+
+            <!-- 菜谱步骤 -->
+            <view class="todo-recipe-title" style="margin-top: 16rpx;">📖 做法</view>
             <view class="todo-recipe-steps" wx:if="{{item.recipeSteps.length > 0}}">
               <view class="todo-step-item" wx:for="{{item.recipeSteps}}" wx:for-item="step" wx:key="*this">
                 <text class="todo-step-dot">●</text>
@@ -201,6 +222,33 @@
               hover-class="btn-hover">
               <text class="upload-icon">+</text>
               <text class="upload-text">上传</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 食材清单 -->
+        <view class="form-item">
+          <text class="form-label">🛒 食材清单</text>
+          <view class="ingredient-list">
+            <view class="ingredient-row" wx:for="{{formData.ingredients}}" wx:key="index">
+              <input 
+                class="ingredient-input"
+                placeholder="输入食材名称"
+                value="{{item}}"
+                bindinput="onIngredientInput"
+                data-index="{{index}}"
+                maxlength="20"
+              />
+              <view class="ingredient-delete" bindtap="removeIngredient" data-index="{{index}}" hover-class="btn-hover">
+                <text>×</text>
+              </view>
+            </view>
+            <view 
+              class="ingredient-add-btn"
+              wx:if="{{formData.ingredients.length < 20}}"
+              bindtap="addIngredient"
+              hover-class="btn-hover">
+              <text>+ 添加食材</text>
             </view>
           </view>
         </view>

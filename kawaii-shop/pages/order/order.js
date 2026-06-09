@@ -25,7 +25,7 @@ Page({
     _syncing: false,
     
     // 版本号
-    version: '1.6.5'
+    version: '1.7.0'
   },
 
   onShow() {
@@ -185,6 +185,7 @@ Page({
     return cartItems.map(item => {
       const recipe = item.dish.recipe || '';
       return Object.assign({}, item, {
+        ingredients: item.dish.ingredients || [],
         recipeSteps: recipe ? recipe.split('\n').filter(s => s.trim()) : []
       });
     });
@@ -283,6 +284,7 @@ Page({
           quantity: item.quantity,
           time: timeStr,
           status: 'pending',
+          ingredients: item.dish.ingredients || [],
           recipeSteps: recipe ? recipe.split('\n').filter(s => s.trim()) : []
         };
         todoOrders.push(order);
