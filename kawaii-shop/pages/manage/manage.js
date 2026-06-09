@@ -83,27 +83,29 @@ Page({
 
   // 加载待做菜品
   loadTodoOrders() {
-    const todoOrders = app.globalData.todoOrders || [];
+    const todoOrders = (app.globalData.todoOrders || []).map(order => {
+      // 旧订单没有 ingredients 时回退到 dish.ingredients
+      if (!order.ingredients || order.ingredients.length === 0) {
+        order = Object.assign({}, order, {
+          ingredients: (order.dish && order.dish.ingredients) || []
+        });
+      }
+      return order;
+    });
     this.setData({ todoOrders: todoOrders });
     this._updateShoppingList(todoOrders);
   },
 
   // 计算汇总采购清单
   _updateShoppingList(todoOrders) {
-    const map = {};  // {食材名: [菜名1, 菜名2]}
+    const set = new Set();
     for (const order of todoOrders) {
       const ingredients = order.ingredients || [];
       for (const ing of ingredients) {
-        if (!map[ing]) map[ing] = [];
-        if (!map[ing].includes(order.dishName)) {
-          map[ing].push(order.dishName);
-        }
+        set.add(ing);
       }
     }
-    const shoppingList = Object.keys(map).map(name => ({
-      name,
-      dishes: map[name].join('、')
-    }));
+    const shoppingList = [...set].map(name => ({ name }));
     this.setData({ shoppingList });
   },
 

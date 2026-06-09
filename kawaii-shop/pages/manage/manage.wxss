@@ -782,19 +782,11 @@
 
 /* 汇总采购清单 */
 .shopping-list-section {
-  margin: 16rpx 24rpx;
-  padding: 20rpx;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(255, 154, 175, 0.15);
-}
-
-.shopping-list-title {
-  font-size: 26rpx;
-  font-weight: bold;
-  color: #5A4A42;
-  margin-bottom: 12rpx;
-  display: block;
+  margin: 24rpx 30rpx 0;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 28rpx 24rpx 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 183, 122, 0.18);
 }
 
 .shopping-list-items {
@@ -814,10 +806,6 @@
   color: #FF6B8A;
   font-weight: 600;
   margin-right: 4rpx;
-}
-
-.shopping-dishes {
-  color: #8B7B72;
 }
 
 /* 食材标签 */

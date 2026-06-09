@@ -25,7 +25,7 @@ Page({
     _syncing: false,
     
     // 版本号
-    version: '1.7.0'
+    version: '1.7.1'
   },
 
   onShow() {

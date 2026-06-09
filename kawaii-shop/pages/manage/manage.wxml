@@ -9,6 +9,22 @@
     <view class="mascot">👨‍🍳</view>
   </view>
 
+  <!-- 汇总采购清单（独立卡片） -->
+  <view class="shopping-list-section" wx:if="{{shoppingList.length > 0}}">
+    <view class="todo-section-header">
+      <view class="todo-title-row">
+        <text class="todo-section-icon">🛒</text>
+        <text class="todo-section-title">采购清单</text>
+      </view>
+      <text class="todo-subtitle">多个待做菜品时食材会自动汇总哦~</text>
+    </view>
+    <view class="shopping-list-items">
+      <view class="shopping-item" wx:for="{{shoppingList}}" wx:key="name">
+        <text class="shopping-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 待做菜品待办区 -->
   <view class="todo-section" wx:if="{{todoOrders.length > 0}}">
     <view class="todo-section-header">
@@ -18,17 +34,6 @@
         <view class="todo-badge">{{todoOrders.length}}</view>
       </view>
       <text class="todo-subtitle">点菜后这里会显示待做清单哦~</text>
-    </view>
-
-    <!-- 汇总采购清单 -->
-    <view class="shopping-list-section" wx:if="{{shoppingList.length > 0}}">
-      <text class="shopping-list-title">🛒 采购清单</text>
-      <view class="shopping-list-items">
-        <view class="shopping-item" wx:for="{{shoppingList}}" wx:key="name">
-          <text class="shopping-name">{{item.name}}</text>
-          <text class="shopping-dishes">— {{item.dishes}}</text>
-        </view>
-      </view>
     </view>
 
     <scroll-view class="todo-list" scroll-y enhanced="{{true}}">
