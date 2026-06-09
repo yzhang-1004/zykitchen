@@ -18,10 +18,8 @@
       </view>
       <text class="todo-subtitle">多个待做菜品时食材会自动汇总哦~</text>
     </view>
-    <view class="shopping-list-items">
-      <view class="shopping-item" wx:for="{{shoppingList}}" wx:key="name">
-        <text class="shopping-name">{{item.name}}</text>
-      </view>
+    <view class="todo-ingredient-tags">
+      <text class="ingredient-tag" wx:for="{{shoppingList}}" wx:key="name">{{item.name}}</text>
     </view>
   </view>
 

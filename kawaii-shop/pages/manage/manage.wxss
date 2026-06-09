@@ -789,25 +789,6 @@
   box-shadow: 0 8rpx 24rpx rgba(255, 183, 122, 0.18);
 }
 
-.shopping-list-items {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.shopping-item {
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 24rpx;
-  line-height: 1.5;
-}
-
-.shopping-name {
-  color: #FF6B8A;
-  font-weight: 600;
-  margin-right: 4rpx;
-}
-
 /* 食材标签 */
 .todo-ingredient-tags {
   display: flex;
