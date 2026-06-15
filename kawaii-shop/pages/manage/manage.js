@@ -10,7 +10,8 @@ Page({
       { name: '全部', icon: '🍽️', value: 'all' },
       { name: '肉菜', icon: '🥩', value: 'meat' },
       { name: '素菜', icon: '🥬', value: 'vegetable' },
-      { name: '面食', icon: '🍜', value: 'noodle' }
+      { name: '面食', icon: '🍜', value: 'noodle' },
+      { name: '饮品', icon: '🧃', value: 'drink' }
     ],
     activeTab: 0,
     
