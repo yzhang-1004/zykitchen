@@ -1,0 +1,8 @@
+# 克隆的外部菜谱仓库（仅用于解析，不提交）
+howtocook-data/
+
+# 脚本生成的中间文件
+scripts/recipes.json
+
+# 微信开发者工具
+miniprogram_npm/

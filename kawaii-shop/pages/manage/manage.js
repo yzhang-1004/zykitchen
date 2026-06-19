@@ -42,7 +42,13 @@ Page({
     },
     
     // 汇总采购清单
-    shoppingList: []
+    shoppingList: [],
+    
+    // 菜谱库搜索弹窗
+    showRecipeSearch: false,
+    recipeSearchKeyword: '',
+    recipeSearchResults: [],
+    recipeSearchLoading: false
   },
 
   onShow() {
@@ -691,6 +697,100 @@ Page({
       });
     }
   },
+
+  // ========== 菜谱库功能 ==========
+  
+  // 本地菜谱库缓存
+  _recipeLibrary: null,
+
+  // 打开菜谱库搜索弹窗
+  openRecipeSearch() {
+    this.setData({
+      showRecipeSearch: true,
+      recipeSearchKeyword: '',
+      recipeSearchResults: []
+    });
+    this._loadRecipeLibrary();
+  },
+  
+  // 关闭菜谱库搜索弹窗
+  closeRecipeSearch() {
+    this.setData({ showRecipeSearch: false });
+  },
+  
+  // 加载本地菜谱库（懒加载，首次调用时 require 读取，后续使用缓存）
+  _loadRecipeLibrary() {
+    this.setData({ recipeSearchLoading: true });
+    try {
+      // 懒加载：首次才 require，后续用缓存
+      if (!this._recipeLibrary) {
+        this._recipeLibrary = require('../../data/recipes');
+        console.log(`菜谱库加载完成: ${this._recipeLibrary.length} 道菜谱`);
+      }
+      // 显示前20条
+      this.setData({ recipeSearchResults: this._recipeLibrary.slice(0, 20) });
+    } catch (err) {
+      console.error('加载菜谱库失败:', err);
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    } finally {
+      this.setData({ recipeSearchLoading: false });
+    }
+  },
+  
+  // 菜谱搜索输入（防抖 500ms）
+  _searchTimer: null,
+  onRecipeSearchInput(e) {
+    const keyword = e.detail.value;
+    this.setData({ recipeSearchKeyword: keyword });
+    clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => {
+      this._doRecipeSearch();
+    }, 500);
+  },
+  
+  // 本地搜索（仅关键词）
+  _doRecipeSearch() {
+    if (!this._recipeLibrary) return;
+    const { recipeSearchKeyword } = this.data;
+    const keyword = recipeSearchKeyword.trim().toLowerCase();
+    
+    this.setData({ recipeSearchLoading: true });
+    try {
+      let results = this._recipeLibrary;
+      
+      // 关键词搜索
+      if (keyword) {
+        results = results.filter(r => r.name.toLowerCase().includes(keyword));
+      }
+      
+      // 限制返回20条
+      this.setData({ recipeSearchResults: results.slice(0, 20) });
+    } catch (err) {
+      console.error('搜索失败:', err);
+    } finally {
+      this.setData({ recipeSearchLoading: false });
+    }
+  },
+  
+  // 选中菜谱，导入到表单
+  importRecipe(e) {
+    const recipe = e.currentTarget.dataset.recipe;
+    if (!recipe) return;
+    
+    // 填充到新增菜品表单
+    this.setData({
+      showRecipeSearch: false,
+      'formData.name': recipe.name,
+      'formData.category': recipe.category,
+      'formData.categoryName': recipe.categoryName,
+      'formData.ingredients': recipe.ingredients || [],
+      'formData.recipe': recipe.recipe || ''
+    });
+    
+    wx.showToast({ title: '已导入', icon: 'success' });
+  },
+  
+
 
   // 迁移旧数据（将内嵌base64图片迁移到 dish_images 集合，并压缩旧图片）
   migrateData() {

@@ -167,8 +167,11 @@
     <view class="modal-content" catchtap="stopPropagation">
       <view class="modal-header">
         <text class="modal-title">{{isEditMode ? '编辑菜品' : '新增菜品'}}</text>
-        <view class="close-btn" bindtap="closeModal">
-          <text class="close-icon">×</text>
+        <view class="modal-header-right">
+          <text class="import-recipe-btn" wx:if="{{!isEditMode}}" bindtap="openRecipeSearch">📖 从菜谱库导入</text>
+          <view class="close-btn" bindtap="closeModal">
+            <text class="close-icon">×</text>
+          </view>
         </view>
       </view>
 
@@ -299,6 +302,56 @@
           <text>{{isEditMode ? '保存' : '添加'}}</text>
         </view>
       </view>
+    </view>
+  </view>
+
+  <!-- 菜谱库搜索弹窗 -->
+  <view class="modal-mask recipe-search-mask" wx:if="{{showRecipeSearch}}" bindtap="closeRecipeSearch" catchtouchmove="preventMove">
+    <view class="recipe-search-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">📖 搜索菜谱</text>
+        <view class="close-btn" bindtap="closeRecipeSearch">
+          <text class="close-icon">×</text>
+        </view>
+      </view>
+
+      <!-- 搜索栏 -->
+      <view class="recipe-search-bar">
+        <input 
+          class="recipe-search-input" 
+          placeholder="输入菜名搜索..." 
+          value="{{recipeSearchKeyword}}"
+          bindinput="onRecipeSearchInput"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 搜索结果列表 -->
+      <scroll-view class="recipe-search-list" scroll-y enhanced="{{true}}">
+        <view class="recipe-search-loading" wx:if="{{recipeSearchLoading}}">
+          <text>加载中...</text>
+        </view>
+        <view 
+          class="recipe-result-card" 
+          wx:for="{{recipeSearchResults}}" 
+          wx:key="name"
+          bindtap="importRecipe"
+          data-recipe="{{item}}"
+          hover-class="btn-hover">
+          <view class="result-top">
+            <text class="result-name">{{item.name}}</text>
+            <text class="result-category">{{item.categoryName}}</text>
+          </view>
+          <view class="result-ingredients" wx:if="{{item.ingredients && item.ingredients.length > 0}}">
+            <text class="result-ing-text">食材：
+              <block wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="*this">{{ing}}{{index < item.ingredients.length - 1 ? '、' : ''}}</block>
+            </text>
+          </view>
+        </view>
+        <view class="recipe-search-empty" wx:if="{{!recipeSearchLoading && recipeSearchResults.length === 0}}">
+          <text>未找到匹配的菜谱</text>
+        </view>
+      </scroll-view>
     </view>
   </view>
 </view>
