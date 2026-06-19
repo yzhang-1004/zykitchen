@@ -788,59 +788,5 @@ Page({
     });
     
     wx.showToast({ title: '已导入', icon: 'success' });
-  },
-  
-
-
-  // 迁移旧数据（将内嵌base64图片迁移到 dish_images 集合，并压缩旧图片）
-  migrateData() {
-    wx.showModal({
-      title: '迁移并压缩图片',
-      content: '1. 迁移旧版内嵌图片\n2. 压缩已迁移的大图片\n是否继续？',
-      confirmText: '开始',
-      confirmColor: '#FF9AAF',
-      success: async (res) => {
-        if (!res.confirm) return;
-
-        wx.showLoading({ title: '迁移中...', icon: 'none' });
-
-        try {
-          // 第1步：迁移旧图片（同时压缩）
-          const migrateResult = await db.migrateAllDishes(
-            (current, name, status) => {
-              if (status === 'migrating') {
-                wx.showLoading({ title: `迁移: ${name}`, icon: 'none' });
-              }
-            },
-            upload.compressBase64Image
-          );
-
-          // 第2步：重新压缩已迁移的大图片
-          wx.showLoading({ title: '压缩图片中...', icon: 'none' });
-          const compressResult = await db.recompressAllDishImages(
-            upload.compressBase64Image,
-            (dishId, type) => {
-              wx.showLoading({ title: `压缩: ${type} 图片`, icon: 'none' });
-            }
-          );
-
-          wx.hideLoading();
-
-          // 刷新数据
-          await app.refreshData();
-          this.loadDishes();
-
-          wx.showModal({
-            title: '完成 ✅',
-            content: `迁移: ${migrateResult.migrated} 个\n压缩: ${compressResult.recompressed} 张图片`,
-            showCancel: false
-          });
-        } catch (err) {
-          wx.hideLoading();
-          console.error('迁移失败:', err);
-          wx.showToast({ title: '迁移失败', icon: 'none' });
-        }
-      }
-    });
   }
 });
